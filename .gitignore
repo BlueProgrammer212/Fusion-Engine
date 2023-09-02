@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+dependencies/
+bin/
+build/

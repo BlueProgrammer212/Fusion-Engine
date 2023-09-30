@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(My3dGameEngine CXX)
+project(My3dGame CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -20,7 +20,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
                     ${GLEW_DIR}/include
                     ${STBI_DIR}
                     ${GLM_DIR}
-                    ${TINYOBJLOADER_DIR}
                     ${ASSIMP_DIR}/include
                     ${IRRKLANG_DIR}/include)
 
@@ -48,9 +47,9 @@ set(ZLIB_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/assimp/contrib/zlib/
 file (GLOB SOURCES "src/*.cpp")
 file (GLOB IMGUI_SOURCES "src/imgui/*.cpp")
 
-add_executable(My3dGameEngine ${SOURCES} ${IMGUI_SOURCES} ${HEADERS})
+add_executable(My3dGame ${SOURCES} ${IMGUI_SOURCES} ${HEADERS})
 
-target_link_libraries(My3dGameEngine 
+target_link_libraries(My3dGame 
                       ${GLFW_LIBRARIES}
                       ${GLEW_LIBRARIES}
                       ${IRRKLANG_LIBRARIES}
@@ -58,4 +57,4 @@ target_link_libraries(My3dGameEngine
                       ${ZLIB_LIBRARIES}
                       opengl32.lib)
 
-set_target_properties(My3dGameEngine PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+set_target_properties(My3dGame PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)

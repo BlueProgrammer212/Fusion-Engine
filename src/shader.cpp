@@ -16,9 +16,6 @@ void Shader::createProgram() {
   const std::string& vertex_shader_source = parseFile(m_vertex_shader_path);
   const std::string& fragment_shader_source = parseFile(m_fragment_shader_path);
 
-  std::cout << vertex_shader_source << "\n";
-  std::cout << fragment_shader_source << "\n";
-
   unsigned int vertex_shader =
       compileShader(vertex_shader_source, GL_VERTEX_SHADER);
   unsigned int fragment_shader =

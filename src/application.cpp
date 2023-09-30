@@ -1,6 +1,10 @@
+// clang-format off
 #include "application.hpp"
 #include "buffer.hpp"
+#include "mesh.hpp"
 #include "shader.hpp"
+#include "scene.hpp"
+// clang-format on
 
 namespace FusionCoreEngine {
 float deltaTime = 0.0f;
@@ -65,63 +69,23 @@ void Application::init(const int width, const int height, const char* title) {
   };
   // clang-format on
 
-  // Setup the shader program.
-  m_main_shader =
-      std::make_unique<Shader>("../../res/shaders/vertex_shader.glsl",
-                               "../../res/shaders/fragment_shader.glsl");
+  std::vector<struct Vertex> vertices = {};
+  std::vector<unsigned int> indices = {};
 
-  m_main_shader->use();
-
-  m_camera = std::make_unique<Camera>();
-  m_camera->setupPerspectiveMat(width, height);
-  m_camera->setupViewMat();
-
-  // Initialize the MVP matrix uniforms.
-  m_main_shader->setUniform<glm::mat4>("u_Model", glm::mat4(1.0f));
-  m_main_shader->setUniform<glm::mat4>("u_View", m_camera->getViewMat());
-  m_main_shader->setUniform<glm::mat4>("u_Projection",
-                                       m_camera->getPerspectiveMat());
-
-  // Generate a vertex array object. (Required in core profile.)
-  glGenVertexArrays(1, &m_vao_address);
-  glBindVertexArray(m_vao_address);
-
-  // Populate the vertex struct array.
-  vertices.clear();
-
-  auto vertexPopulation = [](const glm::vec3& pos) {
+  // Populate the vertex array.
+  for (const glm::vec3& pos : quad_vertices) {
     Vertex vert;
     vert.position = pos;
 
     vertices.push_back(vert);
-  };
+  }
 
-  std::for_each(std::begin(quad_vertices), std::end(quad_vertices),
-                vertexPopulation);
-
-  // Create buffers for debugging purposes.
-  m_buffers.vbo = new FusionCoreEngine::Buffer();
-  m_buffers.vbo->generate<Vertex>(GL_ARRAY_BUFFER, vertices, false);
-
-  m_buffers.vbo->addAttrib<glm::vec3>(offsetof(Vertex, position));
-
-  // Populate the index array.
-  indices.clear();
   indices.insert(indices.end(), quad_indices.begin(), quad_indices.end());
 
-  // Create an index buffer object.
-  m_buffers.ibo = new FusionCoreEngine::Buffer();
-  m_buffers.ibo->generate<unsigned int>(GL_ELEMENT_ARRAY_BUFFER, indices,
-                                        false);
+  m_game_editor_scene = std::make_unique<Scene>(width, height);
+  m_game_editor_scene->init();
 
-// Unbind the buffer objects to prevent accidental data alteration during debugging.
-#ifdef __DEBUG__
-  m_buffers.vbo->unbind();
-  m_buffers.ibo->unbind();
-#endif
-
-  Shader::disable();
-  glBindVertexArray(0);
+  m_game_editor_scene->addMesh(vertices, indices);
 
   glViewport(0, 0, width, height);
   glfwSetFramebufferSizeCallback(m_window, framebuffer_callback);
@@ -131,37 +95,22 @@ void Application::update(float t_deltaTime) {
   currentTick += 0.01f;
   deltaTime = currentTick - previousTick;
   previousTick = currentTick;
+
+  m_game_editor_scene->update(0.01f);
 }
 
 void Application::render() {
   glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  m_main_shader->use();
-
-  glBindVertexArray(m_vao_address);
-
-#ifdef __DEBUG__
-  m_buffers.ibo->bind();
-  m_buffers.vbo->bind();
-#endif
-
-  glDrawElements(GL_TRIANGLES,
-                 static_cast<GLsizei>(m_buffers.ibo->getDataLength()),
-                 GL_UNSIGNED_INT, nullptr);
-
-#ifdef __DEBUG__
-  m_buffers.ibo->unbind();
-  m_buffers.vbo->unbind();
-#endif
-
-  Shader::disable();
-  glBindVertexArray(0);
+  m_game_editor_scene->render();
 
   glfwSwapBuffers(m_window);
 }
 
 void Application::events() {
   glfwPollEvents();
+
+  m_game_editor_scene->events();
 };
 };  // namespace FusionCoreEngine

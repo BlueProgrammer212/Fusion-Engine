@@ -1,45 +1,58 @@
-// #include "mesh.hpp"
-// #include "buffer.hpp"
+#include "mesh.hpp"
+#include "buffer.hpp"
 
-// Mesh::Mesh(const std::vector<Vertex>& t_vertices,
-//            const std::vector<unsigned int>& t_indices,
-//            bool t_enable_backface_culling)
-//     : vertices(t_vertices),
-//       indices(t_indices),
-//       m_enable_backface_culling(t_enable_backface_culling),
-//       m_vbo(std::make_unique<Buffer>(vertices, GL_ARRAY_BUFFER)),
-//       m_ibo(std::make_unique<Buffer>(indices, GL_ELEMENT_ARRAY_BUFFER)) {
-//   this->setup();
-// }
+namespace FusionCoreEngine {
+Mesh::Mesh(const std::vector<struct Vertex>& t_vertices,
+           const std::vector<unsigned int>& t_indices)
+    : m_vertices(t_vertices), m_indices(t_indices) {
+  this->setup();
+};
 
-// Mesh::~Mesh() {}
+Mesh::~Mesh() {
+  SAFE_DELETE(m_buffers.vbo);
+  SAFE_DELETE(m_buffers.ibo);
+}
 
-// void Mesh::setup() {
-//   glGenVertexArrays(1, &m_vao);
-//   glBindVertexArray(m_vao);
+void Mesh::setup() {
+  glGenVertexArrays(1, &m_vao_address);
+  glBindVertexArray(m_vao_address);
 
-//   glBindVertexArray(0);
-//   m_vbo->unbind();
-//   m_ibo->unbind();
-// }
+  m_buffers.vbo = new FusionCoreEngine::Buffer();
+  m_buffers.vbo->generate<Vertex>(GL_ARRAY_BUFFER, m_vertices, false);
 
-// void Mesh::render() {
-//   glBindVertexArray(m_vao);
-//   m_vbo->bind();
-//   m_ibo->bind();
+  m_buffers.vbo->addAttrib<glm::vec3>(0);
 
-//   if (m_enable_backface_culling) {
-//     glEnable(GL_CULL_FACE);
-//   } else {
-//     glDisable(GL_CULL_FACE);
-//   }
+  m_buffers.ibo = new FusionCoreEngine::Buffer();
+  m_buffers.ibo->generate<unsigned int>(GL_ELEMENT_ARRAY_BUFFER, m_indices,
+                                        false);
 
-//   glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()),
-//                  GL_UNSIGNED_INT, 0);
+#ifdef __DEBUG__
+  m_buffers.vbo->unbind();
+  m_buffers.ibo->unbind();
+#endif
 
-//   m_vbo->unbind();
-//   m_ibo->unbind();
-//   glBindVertexArray(0);
-// }
+  glBindVertexArray(0);
+}
 
-// void Mesh::update() {}
+void Mesh::update() {}
+
+void Mesh::render() {
+  glBindVertexArray(m_vao_address);
+
+#ifdef __DEBUG__
+  m_buffers.vbo->bind();
+  m_buffers.ibo->bind();
+#endif
+
+  glDrawElements(GL_TRIANGLES,
+                 static_cast<GLsizei>(m_buffers.ibo->getDataLength()),
+                 GL_UNSIGNED_INT, nullptr);
+
+  glBindVertexArray(0);
+
+#ifdef __DEBUG__
+  m_buffers.vbo->unbind();
+  m_buffers.ibo->unbind();
+#endif
+}
+}  // namespace FusionCoreEngine

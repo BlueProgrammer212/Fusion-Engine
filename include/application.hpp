@@ -1,12 +1,12 @@
 #pragma once
 
+#include <algorithm>
 #include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <algorithm>
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -31,6 +31,8 @@ void framebuffer_callback(GLFWwindow* window, int width, int height);
 
 class Buffer;
 class Shader;
+class Mesh;
+class Scene;
 
 struct Buffers {
   Buffer* vbo = nullptr;
@@ -54,11 +56,8 @@ class Application {
 
  private:
   GLFWwindow* m_window;
-
-  Buffers m_buffers;
-  unsigned int m_vao_address;
-  std::unique_ptr<Shader> m_main_shader;
-  std::unique_ptr<Camera> m_camera;
+  std::unique_ptr<Scene> m_game_editor_scene;
+  std::shared_ptr<Mesh> m_quad_mesh_debug;
 };
 
 extern float deltaTime;

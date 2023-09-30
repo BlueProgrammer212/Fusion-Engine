@@ -1,27 +1,34 @@
-// #pragma once
+#pragma once
 
-// #include "application.hpp"
+#include "application.hpp"
 
-// class Mesh {
-//  public:
-//   Mesh(const std::vector<Vertex>& t_vertices,
-//        const std::vector<unsigned int>& t_indices,
-//        bool t_enable_backface_culling);
+namespace FusionCoreEngine {
+class Mesh {
+ public:
+  Mesh(const std::vector<struct Vertex>& t_vertices,
+       const std::vector<unsigned int>& t_indices);
+  ~Mesh();
 
-//   ~Mesh();
+  [[nodiscard]] inline const std::vector<struct Vertex>& getVertices() const {
+    return m_vertices;
+  }
 
-//   void setup();
+  [[nodiscard]] inline const std::vector<unsigned int>& getIndices() const {
+    return m_indices;
+  }
 
-//   std::vector<Vertex> vertices;
-//   std::vector<unsigned int> indices;
+  void setup();
 
-//   void render();
-//   void update();
+  void render();
+  void update();
 
-//  private:
-//   std::unique_ptr<Buffer> m_vbo;
-//   std::unique_ptr<Buffer> m_ibo;
-//   unsigned int m_vao;
+ private:
+  Buffers m_buffers;
+  unsigned int m_vao_address;
 
-//   bool m_enable_backface_culling;
-// };
+  std::vector<struct Vertex> m_vertices;
+  std::vector<unsigned int> m_indices;
+
+  bool m_backface_culling_enabled;
+};
+};  // namespace FusionCoreEngine
